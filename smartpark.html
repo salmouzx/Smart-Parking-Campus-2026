@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Smart Parking — UNNES</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="device">
+<div class="shell" id="shell">
+<div id="toast" class="toast"></div>
+
+<!-- SPLASH -->
+<div id="s-splash" class="screen active">
+  <div class="splash-top">
+    <div class="splash-logo">🅿</div>
+    <div style="font-size:28px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px;">Smart Parking Campus</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:44px;">Universitas Negeri Semarang</div>
+    <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">Masuk sebagai</div>
+    <div class="splash-role-card primary" onclick="startLogin('mahasiswa')">
+      <div class="sr-icon" style="background:#EFF6FF;">🎓</div>
+      <div><div class="sr-name">Mahasiswa</div><div class="sr-desc" style="color:var(--muted);">Pemilik & peminjam kendaraan</div></div>
+      <div class="sr-arrow" style="color:#94A3B8;">›</div>
+    </div>
+    <div class="splash-role-card" onclick="startLogin('petugas')">
+      <div class="sr-icon" style="background:rgba(255,255,255,.1);">🛡️</div>
+      <div><div class="sr-name">Petugas Parkir</div><div class="sr-desc">Scanner & validasi kendaraan</div></div>
+      <div class="sr-arrow">›</div>
+    </div>
+    <div class="splash-role-card" onclick="startLogin('tamu')">
+      <div class="sr-icon" style="background:rgba(255,255,255,.07);">🚘</div>
+      <div><div class="sr-name">Tamu / Pengunjung</div><div class="sr-desc">Gojek, Grab, Kurir, Umum</div></div>
+      <div class="sr-arrow">›</div>
+    </div>
+    <div style="margin-top:32px;text-align:center;font-size:10px;color:rgba(255,255,255,.25);">SmartParking v1.0 · UNNES</div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen">
+  <div class="login-top">
+    <div style="position:relative;z-index:1;">
+      <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.65);margin-bottom:8px;" id="login-role-label">Masuk sebagai Mahasiswa</div>
+      <div style="font-size:22px;font-weight:800;color:#fff;">Autentikasi SSO</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:4px;">Gunakan akun Google UNNES Anda</div>
+    </div>
+  </div>
+  <div class="login-body scroll-body" style="padding-bottom:24px;">
+    <div class="unnes-logo">
+      <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#1565C0,#0D47A1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎓</div>
+      <div><div class="fw700 text-sm">Universitas Negeri Semarang</div><div class="text-xs text-muted">Single Sign-On (SSO)</div></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Email Kampus</label>
+      <input class="field-input" id="login-email" placeholder="nama@students.unnes.ac.id" type="email"/>
+    </div>
+    <div class="field">
+      <label class="field-label">Password</label>
+      <input class="field-input" id="login-pass" placeholder="••••••••" type="password"/>
+    </div>
+    <button class="btn btn-primary mt4" onclick="doLogin()">Masuk ke SmartParking</button>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <div style="font-size:11px;color:var(--subtle);font-weight:600;">atau</div>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+    <button class="google-btn" onclick="doGoogleLogin()">
+      <svg class="google-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span id="google-btn-text">Lanjut dengan Google UNNES</span>
+    </button>
+    <div style="margin-top:16px;text-align:center;">
+      <span style="font-size:12px;color:var(--blue);font-weight:600;cursor:pointer;" onclick="showToast('Link reset dikirim ke email kampus Anda')">Lupa password?</span>
+    </div>
+    <div style="margin-top:24px;background:var(--blue-l);border:1px solid var(--blue-mid);border-radius:var(--r-lg);padding:12px 14px;font-size:11px;color:var(--blue-d);">
+      ℹ️ Gunakan akun <strong>@students.unnes.ac.id</strong> (mahasiswa) atau <strong>@unnes.ac.id</strong> (petugas).
+    </div>
+    <button class="btn btn-ghost mt12" onclick="go('s-splash')">← Kembali</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="s-loading" class="screen" style="background:var(--blue);align-items:center;justify-content:center;">
+  <div style="text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;">🅿</div>
+    <div class="spinner" style="margin:0 auto 14px;width:28px;height:28px;border-color:rgba(255,255,255,.3);border-top-color:#fff;"></div>
+    <div style="font-size:14px;font-weight:600;color:rgba(255,255,255,.8);" id="loading-text">Memverifikasi akun…</div>
+  </div>
+</div>
+
+<!-- MAHASISWA DASHBOARD -->
+<div id="s-mhs-dash" class="screen">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="row-between">
+        <div>
+          <div class="mhs-hero-greeting">Selamat Pagi 👋</div>
+          <div class="mhs-hero-name">Salma Afifah Maharani</div>
+          <div class="mhs-hero-sub">NIM 2405090099 · Pendidikan Teknik Informatika dan Komputer</div>
+        </div>
+        <div style="position:relative;cursor:pointer;" onclick="go('s-mhs-profil')">
+          <div class="avatar" style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3);">SM</div>
+          <div class="dot green pulse" style="position:absolute;bottom:1px;right:1px;border:2px solid var(--blue);"></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="badge" style="background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.2);"><span class="dot green pulse"></span> Sedang Parkir</span>
+        <span class="badge" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.12);">2 Kendaraan</span>
+      </div>
+      <div class="mhs-stat-row">
+        <div class="mhs-stat-pill"><div class="mhs-stat-num">47</div><div class="mhs-stat-lbl">Parkir</div></div>
+        <div class="mhs-stat-pill"><div class="mhs-stat-num" style="color:#86EFAC;">120</div><div class="mhs-stat-lbl">Tersedia</div></div>
+        <div class="mhs-stat-pill"><div class="mhs-stat-num">1j23m</div><div class="mhs-stat-lbl">Rata-rata</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-body">
+    <div class="section-title">Aksi Cepat</div>
+    <div class="px">
+      <div class="qa-grid">
+        <div class="qa-item" onclick="go('s-mhs-qr')"><div class="qa-icon" style="background:var(--blue-l);">📱</div><div class="qa-label">Tampilkan QR</div></div>
+        <div class="qa-item" onclick="go('s-mhs-kendaraan')"><div class="qa-icon" style="background:#FEF3C7;">🏍️</div><div class="qa-label">Kendaraan Saya</div></div>
+        <div class="qa-item" onclick="go('s-mhs-riwayat')"><div class="qa-icon" style="background:var(--green-l);">🕐</div><div class="qa-label">Riwayat Parkir</div></div>
+        <div class="qa-item" onclick="go('s-mhs-pinjam')"><div class="qa-icon" style="background:var(--purple-l);">🤝</div><div class="qa-label">Pinjamkan</div></div>
+        <div class="qa-item" onclick="go('s-mhs-notif')"><div class="qa-icon" style="background:var(--red-l);">🔔</div><div class="qa-label">Notifikasi</div></div>
+        <div class="qa-item" onclick="go('s-mhs-status')"><div class="qa-icon" style="background:var(--border2);">📍</div><div class="qa-label">Status Parkir</div></div>
+      </div>
+    </div>
+    <div class="section-title">Kendaraan Aktif</div>
+    <div class="px">
+      <div class="park-status active" onclick="go('s-mhs-status')" style="cursor:pointer;">
+        <div style="font-size:36px;">🏍️</div>
+        <div style="flex:1;">
+          <div class="fw700">H 1234 ABC</div>
+          <div class="text-sm mt4" style="color:var(--green);font-weight:600;">● Sedang Parkir · Zona B-14</div>
+          <div class="text-xs text-muted mt4">Masuk 08:30 · <span id="dur-live">1j 24m berlalu</span></div>
+        </div>
+        <div style="color:var(--subtle);font-size:18px;">›</div>
+      </div>
+    </div>
+    <div class="section-title">Notifikasi Terbaru</div>
+    <div class="px mb16">
+      <div class="card card-p">
+        <div class="notif-item notif-unread" onclick="go('s-mhs-notif')" style="cursor:pointer;">
+          <div class="notif-icon" style="background:var(--green-l);">✅</div>
+          <div><div class="fw600 text-sm">H 1234 ABC masuk Zona B, Slot B-14</div><div class="text-xs text-muted mt4">Hari ini · 08:30</div></div>
+        </div>
+        <div class="notif-item notif-unread" onclick="go('s-mhs-notif')" style="cursor:pointer;">
+          <div class="notif-icon" style="background:var(--purple-l);">🤝</div>
+          <div><div class="fw600 text-sm">Meliya ingin pinjam motor Anda — tap untuk setuju</div><div class="text-xs text-muted mt4">Kemarin · 13:45</div></div>
+        </div>
+        <div class="notif-item" onclick="go('s-mhs-notif')" style="cursor:pointer;border:none;">
+          <div class="notif-icon" style="background:var(--amber-l);">⚠️</div>
+          <div><div class="fw600 text-sm">Aktivitas mencurigakan di Zona C</div><div class="text-xs text-muted mt4">2 hari lalu · 21:15</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="setNav(this);go('s-mhs-dash')"><div class="nav-pill">🏠</div><div class="nav-label">Beranda</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-kendaraan')"><div class="nav-pill">🏍️</div><div class="nav-label">Kendaraan</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-qr')"><div class="nav-pill">📱</div><div class="nav-label">QR Saya</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-notif')"><div class="nav-pill">🔔</div><div class="nav-label">Notif</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-profil')"><div class="nav-pill">👤</div><div class="nav-label">Profil</div></button>
+  </nav>
+</div>
+
+<!-- QR CODE -->
+<div id="s-mhs-qr" class="screen">
+  <div class="status-bar light" style="background:var(--blue);"></div>
+  <div class="topbar on-blue light">
+    <button class="back-btn light" onclick="go('s-mhs-dash')">←</button>
+    <h2>QR Kendaraan</h2>
+  </div>
+  <div class="scroll-body" style="background:var(--blue);">
+    <div style="padding:0 20px 16px;display:flex;gap:8px;">
+      <span id="qr-chip-1" class="badge" style="background:rgba(255,255,255,.9);color:var(--blue-d);border:none;cursor:pointer;padding:6px 12px;" onclick="switchQrVehicle(1)">🏍️ H 1234 ABC</span>
+      <span id="qr-chip-2" class="badge" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);cursor:pointer;padding:6px 12px;" onclick="switchQrVehicle(2)">🚗 H 5678 XYZ</span>
+    </div>
+    <div style="background:var(--bg);border-radius:28px 28px 0 0;padding:22px 20px 0;">
+      <div class="qr-card">
+        <div style="font-size:15px;font-weight:700;" id="qr-plate">H 1234 ABC</div>
+        <div class="text-xs text-muted mb12" style="margin-top:2px;" id="qr-detail">Honda Beat 2022 · Merah · Salma Afifah Maharani</div>
+        <div class="qr-frame">
+          <svg width="176" height="176" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+            <rect width="21" height="21" fill="white"/>
+            <rect x="1" y="1" width="7" height="7" fill="#2563EB" rx="1"/><rect x="2" y="2" width="5" height="5" fill="white" rx=".5"/><rect x="3" y="3" width="3" height="3" fill="#2563EB" rx=".3"/>
+            <rect x="13" y="1" width="7" height="7" fill="#2563EB" rx="1"/><rect x="14" y="2" width="5" height="5" fill="white" rx=".5"/><rect x="15" y="3" width="3" height="3" fill="#2563EB" rx=".3"/>
+            <rect x="1" y="13" width="7" height="7" fill="#2563EB" rx="1"/><rect x="2" y="14" width="5" height="5" fill="white" rx=".5"/><rect x="3" y="15" width="3" height="3" fill="#2563EB" rx=".3"/>
+            <rect x="9" y="1" width="1" height="1" fill="#2563EB"/><rect x="11" y="1" width="1" height="1" fill="#2563EB"/><rect x="10" y="2" width="2" height="1" fill="#2563EB"/><rect x="9" y="4" width="1" height="2" fill="#2563EB"/><rect x="11" y="3" width="1" height="1" fill="#2563EB"/>
+            <rect x="9" y="9" width="1" height="1" fill="#2563EB"/><rect x="11" y="9" width="3" height="1" fill="#2563EB"/><rect x="10" y="10" width="1" height="2" fill="#2563EB"/><rect x="12" y="11" width="2" height="1" fill="#2563EB"/>
+            <rect x="9" y="12" width="2" height="1" fill="#2563EB"/><rect x="13" y="9" width="1" height="2" fill="#2563EB"/>
+            <rect x="15" y="9" width="3" height="1" fill="#2563EB"/><rect x="14" y="10" width="1" height="3" fill="#2563EB"/>
+            <rect x="17" y="11" width="3" height="1" fill="#2563EB"/><rect x="16" y="12" width="2" height="1" fill="#2563EB"/>
+            <rect x="13" y="13" width="1" height="3" fill="#2563EB"/><rect x="15" y="14" width="2" height="1" fill="#2563EB"/>
+            <rect x="17" y="13" width="3" height="2" fill="#2563EB"/><rect x="16" y="16" width="3" height="1" fill="#2563EB"/>
+            <rect x="9" y="14" width="3" height="1" fill="#2563EB"/><rect x="10" y="15" width="1" height="2" fill="#2563EB"/>
+            <rect x="9" y="17" width="2" height="2" fill="#2563EB"/><rect x="12" y="16" width="1" height="3" fill="#2563EB"/>
+            <rect x="1" y="9" width="3" height="1" fill="#2563EB"/><rect x="5" y="9" width="2" height="1" fill="#2563EB"/>
+            <rect x="2" y="10" width="2" height="2" fill="#2563EB"/><rect x="5" y="11" width="3" height="1" fill="#2563EB"/>
+            <rect x="1" y="12" width="2" height="1" fill="#2563EB"/><rect x="4" y="12" width="3" height="2" fill="#2563EB"/>
+            <rect x="1" y="14" width="3" height="1" fill="#2563EB"/><rect x="5" y="14" width="2" height="1" fill="#2563EB"/>
+            <rect x="2" y="15" width="2" height="2" fill="#2563EB"/><rect x="6" y="16" width="2" height="1" fill="#2563EB"/>
+            <rect x="1" y="17" width="3" height="2" fill="#2563EB"/><rect x="5" y="18" width="2" height="1" fill="#2563EB"/>
+          </svg>
+        </div>
+        <div class="qr-badge"><span class="dot green pulse"></span><span id="qr-timer">Refresh dalam 28 detik</span></div>
+        <div class="text-xs text-muted mt8" style="font-family:var(--mono);">Token: SP·A1F3·D9E2·B7C8</div>
+      </div>
+      <div class="card card-p mt10">
+        <div class="row-between mb10"><div class="fw700 text-sm">Info Kendaraan</div><span class="badge green">● Aktif</span></div>
+        <div class="info-row"><span class="ir-label">Plat</span><span class="ir-value" style="font-family:var(--mono);font-size:15px;" id="qr-info-plate">H 1234 ABC</span></div>
+        <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value" id="qr-info-veh">Honda Beat 2022</span></div>
+        <div class="info-row"><span class="ir-label">Pemilik</span><span class="ir-value">Salma Afifah Maharani</span></div>
+      </div>
+      <div class="grid2 mt10">
+        <button class="btn btn-outline btn-sm" style="width:100%;padding:11px;" onclick="showToast('QR diperbesar 🔍')">🔍 Perbesar</button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;padding:11px;" onclick="showToast('Dibagikan! 📤')">📤 Bagikan</button>
+      </div>
+      <div class="info-card amber mt10">⚠️ <strong>Jangan screenshot</strong> QR ini. Token berubah otomatis setiap 30 detik demi keamanan kendaraanmu.</div>
+      <div style="height:24px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- KENDARAAN -->
+<div id="s-mhs-kendaraan" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-dash')">←</button>
+    <h2>Kendaraan Saya</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:4px;">
+    <button class="btn btn-primary" onclick="go('s-mhs-tambah')" style="margin-bottom:16px;">＋ Daftarkan Kendaraan Baru</button>
+    <div class="section-title" style="padding:0;margin-top:4px;">Terdaftar (2)</div>
+    <div class="veh-card" onclick="go('s-mhs-qr')">
+      <div class="veh-icon" style="background:var(--blue-l);">🏍️</div>
+      <div style="flex:1;">
+        <div class="veh-plate">H 1234 ABC</div>
+        <div class="veh-sub">Honda Beat 2022 · Merah</div>
+        <div class="mt8"><span class="badge green">● Sedang Parkir</span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();go('s-mhs-qr')">QR</button>
+    </div>
+    <div class="veh-card" onclick="go('s-mhs-qr')">
+      <div class="veh-icon" style="background:var(--green-l);">🚗</div>
+      <div style="flex:1;">
+        <div class="veh-plate">H 5678 XYZ</div>
+        <div class="veh-sub">Land Cruiser 2024 · Hitam</div>
+        <div class="mt8"><span class="badge gray">Di Luar Kampus</span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();go('s-mhs-qr')">QR</button>
+    </div>
+    <div class="section-title" style="padding:0;">Dipinjam Teman</div>
+    <div id="pinjam-active-card" class="card card-p" style="display:flex;gap:12px;align-items:center;">
+      <div class="veh-icon" style="background:var(--purple-l);font-size:22px;">🏍️</div>
+      <div style="flex:1;">
+        <div class="fw700">H 1234 ABC</div>
+        <div class="text-xs text-muted mt4">Dipinjam Meliya Kholisatun Nisa</div>
+        <div class="mt8"><span class="badge purple">🤝 Aktif s/d 17 Jun</span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="go('s-mhs-pinjam-detail')">Detail</button>
+    </div>
+    <div class="section-title" style="padding:0;">Jenis Kendaraan</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;">
+      <div style="background:var(--bg);border-radius:var(--r-md);padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);">🏍️<br>Motor</div>
+      <div style="background:var(--bg);border-radius:var(--r-md);padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);">🚗<br>Mobil</div>
+      <div style="background:var(--green-l);border-radius:var(--r-md);padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--green);border:1px solid var(--green-mid);">⚡<br>Listrik</div>
+      <div style="background:var(--bg);border-radius:var(--r-md);padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);">🛵<br>Moped</div>
+      <div style="background:var(--blue-l);border-radius:var(--r-md);padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--blue);border:1px solid var(--blue-mid);">🚲<br>Sepeda</div>
+      <div style="background:var(--blue-l);border-radius:var(--r-md);padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--blue);border:1px solid var(--blue-mid);">⚡🚲<br>E-Bike</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAMBAH KENDARAAN -->
+<div id="s-mhs-tambah" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-kendaraan')">←</button>
+    <h2>Daftarkan Kendaraan</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="field"><label class="field-label">Jenis Kendaraan</label><select class="field-input"><option>🏍️ Motor</option><option>🚗 Mobil</option><option>⚡ Motor Listrik</option><option>⚡🚗 Mobil Listrik</option><option>🚲 Sepeda</option><option>⚡🚲 Sepeda Listrik</option></select></div>
+    <div class="field"><label class="field-label">Plat Nomor</label><input class="field-input" id="tambah-plat" placeholder="H 1234 ABC" style="text-transform:uppercase;font-family:var(--mono);"/></div>
+    <div class="grid2">
+      <div class="field"><label class="field-label">Merk</label><input class="field-input" id="tambah-merk" placeholder="Honda"/></div>
+      <div class="field"><label class="field-label">Model</label><input class="field-input" id="tambah-model" placeholder="Beat"/></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="field-label">Warna</label><input class="field-input" id="tambah-warna" placeholder="Merah"/></div>
+      <div class="field"><label class="field-label">Tahun</label><input class="field-input" id="tambah-tahun" placeholder="2022" type="number"/></div>
+    </div>
+    <div class="field"><label class="field-label">Nomor STNK</label><input class="field-input" id="tambah-stnk" placeholder="1234567890"/></div>
+    <div class="section-title" style="padding:0;margin-top:4px;">Dokumen</div>
+    <div id="foto-kendaraan-box" class="upload-box mb10" onclick="simulateUploadFoto('foto-kendaraan-box','foto-kendaraan-preview')">
+      <div style="font-size:26px;margin-bottom:5px;">📷</div>
+      <div class="fw700 text-sm">Foto Kendaraan</div>
+      <div class="text-xs text-muted mt4">Tap untuk mengambil foto</div>
+    </div>
+    <div id="foto-kendaraan-preview" style="display:none;" class="upload-preview">
+      <div class="upload-preview-overlay">📷 <span style="color:#fff;font-size:13px;margin-left:6px;font-weight:600;">Foto tersimpan ✓</span></div>
+      <div style="height:80px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;font-size:36px;">🏍️</div>
+    </div>
+    <div id="foto-stnk-box" class="upload-box mb16" onclick="simulateUploadFoto('foto-stnk-box','foto-stnk-preview')">
+      <div style="font-size:26px;margin-bottom:5px;">📄</div>
+      <div class="fw700 text-sm">STNK / Bukti Kepemilikan</div>
+      <div class="text-xs text-muted mt4">JPG, PNG, atau PDF</div>
+    </div>
+    <div id="foto-stnk-preview" style="display:none;" class="upload-preview">
+      <div class="upload-preview-overlay">📄 <span style="color:#fff;font-size:13px;margin-left:6px;font-weight:600;">Dokumen tersimpan ✓</span></div>
+      <div style="height:80px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);display:flex;align-items:center;justify-content:center;font-size:36px;">📋</div>
+    </div>
+    <button class="btn btn-primary" onclick="submitTambahKendaraan()">Daftarkan Kendaraan</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- STATUS PARKIR -->
+<div id="s-mhs-status" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-dash')">←</button>
+    <h2>Status Parkir</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="park-status active">
+      <div style="font-size:38px;">🏍️</div>
+      <div>
+        <div class="fw800 text-lg" style="color:var(--green);">Sedang Parkir</div>
+        <div class="fw600 text-sm mt4">H 1234 ABC · Honda Beat</div>
+      </div>
+    </div>
+    <div class="card card-p mt10">
+      <div class="info-row"><span class="ir-label">⏰ Waktu Masuk</span><span class="ir-value">08:30 WIB</span></div>
+      <div class="info-row"><span class="ir-label">⏱ Durasi</span><span class="ir-value fw700 text-blue" id="status-dur">1j 24m</span></div>
+      <div class="info-row"><span class="ir-label">📍 Zona</span><span class="ir-value">Zona B — Gedung Teknik</span></div>
+      <div class="info-row"><span class="ir-label">🅿️ Nomor Slot</span><span class="ir-value fw800" style="font-family:var(--mono);">B-14</span></div>
+      <div class="info-row"><span class="ir-label">Jenis Area</span><span class="ir-value">Area Motor</span></div>
+    </div>
+    <div class="section-title" style="padding:0;">Peta Area</div>
+    <div style="background:var(--border2);border-radius:var(--r-xl);height:130px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);margin-bottom:12px;">
+      <div style="text-align:center;"><div style="font-size:28px;">🗺️</div><div class="text-xs text-muted mt4 fw600">Slot B-14 ditandai biru</div></div>
+    </div>
+    <button class="btn btn-primary" onclick="go('s-mhs-qr')">📱 Tampilkan QR untuk Keluar</button>
+    <button class="btn btn-ghost mt8" onclick="showToast('Laporan dikirim ke petugas 🚨')">🚨 Laporkan Masalah</button>
+  </div>
+</div>
+
+<!-- RIWAYAT -->
+<div id="s-mhs-riwayat" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-dash')">←</button>
+    <h2>Riwayat Parkir</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="tab-row mb12">
+      <button class="tab-btn active" onclick="setTab(this);filterRiwayat('hari')">Hari Ini</button>
+      <button class="tab-btn" onclick="setTab(this);filterRiwayat('minggu')">Minggu Ini</button>
+      <button class="tab-btn" onclick="setTab(this);filterRiwayat('bulan')">Bulan Ini</button>
+    </div>
+    <div class="stat-grid" style="padding:0;margin-bottom:16px;" id="riwayat-stats">
+      <div class="stat-item"><div class="stat-val" style="color:var(--blue);">3</div><div class="stat-label">Total Parkir</div></div>
+      <div class="stat-item"><div class="stat-val" style="color:var(--green);">1j 23m</div><div class="stat-label">Rata-rata</div></div>
+    </div>
+    <div id="riwayat-list">
+      <div class="card card-p mb8" data-period="hari">
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:var(--r-sm);background:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:18px;">🏍️</div>
+            <div><div class="fw700 text-sm">08:30 — Aktif sekarang</div><div class="text-xs text-muted mt4">Zona B-14 · 1j 24m</div></div>
+          </div>
+          <span class="badge green">Aktif</span>
+        </div>
+      </div>
+      <div class="card card-p mb8" data-period="hari minggu">
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:var(--r-sm);background:var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;">🏍️</div>
+            <div><div class="fw700 text-sm">06:00 — 08:00</div><div class="text-xs text-muted mt4">Zona A-03 · 2j 0m</div></div>
+          </div>
+          <span class="badge gray">Selesai</span>
+        </div>
+      </div>
+      <div class="card card-p mb8" data-period="minggu bulan">
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:var(--r-sm);background:var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;">🚗</div>
+            <div><div class="fw700 text-sm">Kemarin · 13:00 — 17:30</div><div class="text-xs text-muted mt4">Zona C-02 · 4j 30m</div></div>
+          </div>
+          <span class="badge gray">Selesai</span>
+        </div>
+      </div>
+      <div class="card card-p mb8" data-period="bulan">
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="width:38px;height:38px;border-radius:var(--r-sm);background:var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;">🏍️</div>
+            <div><div class="fw700 text-sm">3 Jun · 07:00 — 15:00</div><div class="text-xs text-muted mt4">Zona B-07 · 8j 0m</div></div>
+          </div>
+          <span class="badge gray">Selesai</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFIKASI -->
+<div id="s-mhs-notif" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-dash')">←</button>
+    <h2>Notifikasi</h2>
+    <button class="btn btn-ghost btn-sm" onclick="bacaSemua()">Baca Semua</button>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="card card-p" id="notif-list">
+      <div class="notif-item notif-unread" id="notif-1">
+        <div class="notif-icon" style="background:var(--green-l);">✅</div>
+        <div><div class="fw600 text-sm">H 1234 ABC masuk Zona B, Slot B-14</div><div class="text-xs text-muted mt4">Hari ini · 08:30</div></div>
+      </div>
+      <div class="notif-item notif-unread" id="notif-pinjam" style="cursor:pointer;" onclick="go('s-mhs-terima-pinjam')">
+        <div class="notif-icon" style="background:var(--purple-l);">🤝</div>
+        <div style="flex:1;">
+          <div class="fw600 text-sm">Meliya Kholisatun Nisa ingin meminjam motor Anda</div>
+          <div class="text-xs text-muted mt4">Kemarin · 13:45</div>
+          <div style="margin-top:8px;display:flex;gap:6px;" id="notif-pinjam-actions">
+            <button class="btn btn-green btn-sm" style="padding:6px 14px;" onclick="event.stopPropagation();terimaNotifPinjam()">Terima</button>
+            <button class="btn btn-ghost btn-sm" style="padding:6px 14px;" onclick="event.stopPropagation();tolakNotifPinjam()">Tolak</button>
+          </div>
+        </div>
+      </div>
+      <div class="notif-item" id="notif-3">
+        <div class="notif-icon" style="background:var(--amber-l);">⏰</div>
+        <div><div class="fw600 text-sm">Masa pinjam Meliya hampir habis (1 jam lagi)</div><div class="text-xs text-muted mt4">Kemarin · 17:00</div></div>
+      </div>
+      <div class="notif-item" id="notif-4">
+        <div class="notif-icon" style="background:var(--green-l);">🚪</div>
+        <div><div class="fw600 text-sm">H 1234 ABC keluar kampus pukul 18:45</div><div class="text-xs text-muted mt4">Kemarin · 18:45</div></div>
+      </div>
+      <div class="notif-item" id="notif-5" style="border:none;">
+        <div class="notif-icon" style="background:var(--red-l);">🚨</div>
+        <div><div class="fw600 text-sm">Aktivitas mencurigakan di Zona C — Periksa</div><div class="text-xs text-muted mt4">2 hari lalu · 21:15</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PINJAMKAN -->
+<div id="s-mhs-pinjam" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-dash')">←</button>
+    <h2>Pinjamkan Kendaraan</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="card card-p" style="border:1.5px solid var(--blue);background:var(--blue-l);margin-bottom:16px;">
+      <div class="text-xs fw700" style="color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Kendaraan Dipinjamkan</div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div style="font-size:30px;">🏍️</div>
+        <div><div class="fw700">H 1234 ABC</div><div class="text-xs text-muted">Honda Beat 2022 · Merah</div></div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="showToast('Pilih kendaraan lain')">Ganti</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Cari Peminjam (NIM / Nama)</label>
+      <input class="field-input" id="pinjam-search" placeholder="NIM atau Nama" oninput="handlePinjamSearch(this.value)"/>
+    </div>
+    <div id="pinjam-result-found" style="display:none;background:var(--blue-l);border:1.5px solid var(--blue-mid);border-radius:var(--r-lg);padding:12px;margin-bottom:14px;display:none;gap:10px;align-items:center;">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;">M</div>
+      <div style="flex:1;"><div class="fw700" id="pinjam-found-name">Meliya Kholisatun Nisa</div><div class="text-xs" style="color:var(--blue);" id="pinjam-found-nim">NIM 2405090089 · Pendidikan Teknik Informatika</div></div>
+      <span class="badge blue">Dipilih ✓</span>
+    </div>
+    <div id="pinjam-empty" style="background:var(--border2);border-radius:var(--r-lg);padding:14px;margin-bottom:14px;text-align:center;display:none;">
+      <div style="font-size:24px;margin-bottom:4px;">🔍</div>
+      <div class="text-xs text-muted fw600">Mahasiswa tidak ditemukan</div>
+    </div>
+    <div class="field"><label class="field-label">Alasan Peminjaman</label><input class="field-input" id="pinjam-alasan" placeholder="Fotocopy dll…"/></div>
+    <div class="grid2">
+      <div class="field"><label class="field-label">Tanggal Mulai</label><input class="field-input" id="pinjam-mulai" type="date"/></div>
+      <div class="field"><label class="field-label">Tanggal Selesai</label><input class="field-input" id="pinjam-selesai" type="date"/></div>
+    </div>
+    <div class="field"><label class="field-label">Catatan Tambahan</label><input class="field-input" id="pinjam-catatan" placeholder="Isi bensin sebelum dikembalikan…"/></div>
+    <button class="btn btn-primary mt4" onclick="submitPinjam()">📤 Kirim Permintaan Peminjaman</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- PINJAM SENT -->
+<div id="s-mhs-pinjam-sent" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-dash')">←</button>
+    <h2>Permintaan Terkirim</h2>
+  </div>
+  <div class="success-wrap">
+    <div class="success-circle" style="background:var(--blue-l);">📤</div>
+    <div class="fw800 text-xl">Permintaan Dikirim!</div>
+    <div class="text-sm text-muted" id="pinjam-sent-sub">Menunggu konfirmasi dari peminjam</div>
+    <div class="card card-p" style="width:100%;margin-top:12px;">
+      <div class="info-row"><span class="ir-label">Peminjam</span><span class="ir-value" id="pinjam-sent-name">Meliya Kholisatun Nisa</span></div>
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value" style="font-family:var(--mono);">H 1234 ABC</span></div>
+      <div class="info-row"><span class="ir-label">Durasi</span><span class="ir-value" id="pinjam-sent-durasi">—</span></div>
+      <div class="info-row"><span class="ir-label">Status</span><span class="ir-value"><span class="badge amber">⏳ Menunggu</span></span></div>
+    </div>
+    <div class="info-card amber" style="width:100%;">📱 Notifikasi akan dikirim ke kamu dan peminjam saat permintaan direspons.</div>
+    <button class="btn btn-primary" style="width:100%;" onclick="go('s-mhs-dash')">Kembali ke Beranda</button>
+  </div>
+</div>
+
+<!-- TERIMA PINJAM -->
+<div id="s-mhs-terima-pinjam" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-notif')">←</button>
+    <h2>Permintaan Peminjaman</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="info-card amber mb12" style="text-align:center;">
+      <div class="fw700 text-base" style="color:#92400E;">📨 Kamu diminta meminjam kendaraan</div>
+      <div class="text-xs text-muted mt4">Dari Salma Afifah Maharani · H 1234 ABC</div>
+    </div>
+    <div class="card card-p">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;">
+        <div class="avatar" style="background:var(--blue-l);color:var(--blue);font-size:18px;">S</div>
+        <div><div class="fw700">Salma Afifah Maharani</div><div class="text-xs text-muted">Pemilik · NIM 2405090099</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:12px;font-size:46px;">🏍️</div>
+      <div class="info-row"><span class="ir-label">Plat</span><span class="ir-value" style="font-family:var(--mono);">H 1234 ABC</span></div>
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value">Honda Beat 2022 Merah</span></div>
+      <div class="info-row"><span class="ir-label">Durasi</span><span class="ir-value">17 – 17 Jun 2026</span></div>
+      <div class="info-row"><span class="ir-label">Alasan</span><span class="ir-value">Fotocopy</span></div>
+    </div>
+    <div id="terima-pinjam-actions" class="grid2 mt12">
+      <button class="btn btn-green" onclick="terimaPermintaanPinjam()">✅ Terima</button>
+      <button class="btn btn-red" onclick="tolakPermintaanPinjam()">❌ Tolak</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PINJAM -->
+<div id="s-mhs-pinjam-detail" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-kendaraan')">←</button>
+    <h2>Detail Peminjaman</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="park-status borrowed">
+      <div style="font-size:38px;">🤝</div>
+      <div><div class="fw800 text-lg" style="color:var(--purple);">Sedang Dipinjam</div><div class="fw600 text-sm mt4">H 1234 ABC</div></div>
+    </div>
+    <div class="card card-p mt10">
+      <div class="info-row"><span class="ir-label">👤 Peminjam</span><span class="ir-value">Meliya Kholisatun Nisa</span></div>
+      <div class="info-row"><span class="ir-label">🎓 NIM</span><span class="ir-value">2405090089</span></div>
+      <div class="info-row"><span class="ir-label">📅 Mulai</span><span class="ir-value">17 Jun 2026</span></div>
+      <div class="info-row"><span class="ir-label">📅 Selesai</span><span class="ir-value">17 Jun 2026</span></div>
+      <div class="info-row"><span class="ir-label">💬 Alasan</span><span class="ir-value">Fotocopy</span></div>
+      <div class="info-row"><span class="ir-label">Status</span><span class="ir-value" id="pinjam-detail-status"><span class="badge green">● Aktif</span></span></div>
+    </div>
+    <div class="info-card blue mt10">ℹ️ Kamu akan dapat notifikasi setiap kali kendaraan scan masuk/keluar kampus.</div>
+    <button class="btn btn-red mt12" id="btn-cabut-pinjam" onclick="cabutIzinPinjam()">Cabut Izin Peminjaman</button>
+  </div>
+</div>
+
+<!-- PROFIL MAHASISWA -->
+<div id="s-mhs-profil" class="screen">
+  <div class="hero">
+    <div class="hero-content" style="text-align:center;">
+      <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,.4);margin:0 auto 12px;">SM</div>
+      <div style="font-size:19px;font-weight:800;color:#fff;">Salma Afifah Maharani</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;">NIM 2405090099 · Pend. Teknik Informatika dan Komputer</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">salmaafifah08@students.unnes.ac.id</div>
+    </div>
+  </div>
+  <div class="scroll-body px" style="padding-top:14px;">
+    <div class="card mb10">
+      <div class="profile-menu-item" onclick="go('s-mhs-profil-data')">
+        <div class="row-gap"><span style="font-size:18px;">🎓</span><div class="fw600 text-sm">Data Mahasiswa</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+      <div class="profile-menu-item" onclick="go('s-mhs-kendaraan')">
+        <div class="row-gap"><span style="font-size:18px;">🏍️</span><div class="fw600 text-sm">Kendaraan Saya</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+      <div class="profile-menu-item" onclick="go('s-mhs-profil-notif')">
+        <div class="row-gap"><span style="font-size:18px;">🔔</span><div class="fw600 text-sm">Pengaturan Notifikasi</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+    </div>
+    <div class="card mb10">
+      <div class="profile-menu-item" onclick="go('s-mhs-profil-keamanan')">
+        <div class="row-gap"><span style="font-size:18px;">🔒</span><div class="fw600 text-sm">Keamanan & Password</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+      <div class="profile-menu-item" onclick="go('s-mhs-profil-bantuan')">
+        <div class="row-gap"><span style="font-size:18px;">❓</span><div class="fw600 text-sm">Bantuan & FAQ</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+    </div>
+    <button class="btn btn-red" onclick="doLogout()">🚪 Keluar (Logout)</button>
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:var(--subtle);">SmartParking v1.0 · UNNES · 2026</div>
+    <div style="height:20px;"></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-dash')"><div class="nav-pill">🏠</div><div class="nav-label">Beranda</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-kendaraan')"><div class="nav-pill">🏍️</div><div class="nav-label">Kendaraan</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-qr')"><div class="nav-pill">📱</div><div class="nav-label">QR Saya</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-mhs-notif')"><div class="nav-pill">🔔</div><div class="nav-label">Notif</div></button>
+    <button class="nav-item active" onclick="setNav(this);go('s-mhs-profil')"><div class="nav-pill">👤</div><div class="nav-label">Profil</div></button>
+  </nav>
+</div>
+
+<!-- PROFIL: DATA MAHASISWA -->
+<div id="s-mhs-profil-data" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-profil')">←</button>
+    <h2>Data Mahasiswa</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div style="text-align:center;padding:20px 0 14px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--blue);border:2px solid var(--blue-mid);margin:0 auto 10px;">SM</div>
+      <button class="btn btn-ghost btn-sm" onclick="showToast('Ganti foto profil')">📷 Ganti Foto</button>
+    </div>
+    <div class="card card-p">
+      <div class="info-row"><span class="ir-label">Nama Lengkap</span><span class="ir-value">Salma Afifah Maharani</span></div>
+      <div class="info-row"><span class="ir-label">NIM</span><span class="ir-value" style="font-family:var(--mono);">2405090099</span></div>
+      <div class="info-row"><span class="ir-label">Program Studi</span><span class="ir-value">Pend. Teknik Informatika dan Komputer</span></div>
+      <div class="info-row"><span class="ir-label">Fakultas</span><span class="ir-value">Teknik</span></div>
+      <div class="info-row"><span class="ir-label">Angkatan</span><span class="ir-value">2024</span></div>
+      <div class="info-row"><span class="ir-label">Email</span><span class="ir-value" style="font-size:11px;">salmaafifah08@students.unnes.ac.id</span></div>
+      <div class="info-row"><span class="ir-label">No. HP</span><span class="ir-value">+62 812-3456-7890</span></div>
+    </div>
+    <div class="field mt16"><label class="field-label">No. HP (ubah)</label><input class="field-input" placeholder="+62 812-3456-7890" type="tel"/></div>
+    <button class="btn btn-primary" onclick="showToast('Data berhasil diperbarui ✅')">Simpan Perubahan</button>
+  </div>
+</div>
+
+<!-- PROFIL: NOTIFIKASI SETTINGS -->
+<div id="s-mhs-profil-notif" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-profil')">←</button>
+    <h2>Pengaturan Notifikasi</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="info-card blue mb12">ℹ️ Atur jenis notifikasi yang ingin kamu terima. Notifikasi keamanan selalu aktif.</div>
+    <div class="card mb10">
+      <div class="profile-menu-item">
+        <div><div class="fw600 text-sm">Kendaraan Masuk/Keluar</div><div class="text-xs text-muted mt4">Notif saat kendaraanmu scan di gerbang</div></div>
+        <label onclick="toggleSwitch(this)" style="position:relative;width:44px;height:24px;display:inline-block;cursor:pointer;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;"/>
+          <span id="sw1" style="position:absolute;inset:0;background:var(--green);border-radius:12px;transition:.2s;"><span style="position:absolute;left:2px;top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;transform:translateX(20px);display:block;"></span></span>
+        </label>
+      </div>
+      <div class="profile-menu-item">
+        <div><div class="fw600 text-sm">Permintaan Peminjaman</div><div class="text-xs text-muted mt4">Notif saat ada yang minta pinjam kendaraan</div></div>
+        <label onclick="toggleSwitch(this)" style="position:relative;width:44px;height:24px;display:inline-block;cursor:pointer;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;"/>
+          <span id="sw2" style="position:absolute;inset:0;background:var(--green);border-radius:12px;transition:.2s;"><span style="position:absolute;left:2px;top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;transform:translateX(20px);display:block;"></span></span>
+        </label>
+      </div>
+      <div class="profile-menu-item">
+        <div><div class="fw600 text-sm">Masa Parkir Panjang</div><div class="text-xs text-muted mt4">Peringatan jika parkir >6 jam</div></div>
+        <label onclick="toggleSwitch(this)" style="position:relative;width:44px;height:24px;display:inline-block;cursor:pointer;">
+          <input type="checkbox" style="opacity:0;width:0;height:0;"/>
+          <span id="sw3" style="position:absolute;inset:0;background:var(--border);border-radius:12px;transition:.2s;"><span style="position:absolute;left:2px;top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;display:block;"></span></span>
+        </label>
+      </div>
+      <div class="profile-menu-item" style="border:none;">
+        <div><div class="fw600 text-sm">🔒 Notifikasi Keamanan</div><div class="text-xs text-muted mt4">Aktivitas mencurigakan (selalu aktif)</div></div>
+        <span class="badge green" style="font-size:10px;">Aktif</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="showToast('Pengaturan tersimpan ✅')">Simpan Pengaturan</button>
+  </div>
+</div>
+
+<!-- PROFIL: KEAMANAN -->
+<div id="s-mhs-profil-keamanan" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-profil')">←</button>
+    <h2>Keamanan & Password</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="info-card green mb12">🔒 Akun terhubung ke SSO UNNES. Password dikelola oleh sistem kampus.</div>
+    <div class="field"><label class="field-label">Password Lama</label><input class="field-input" placeholder="••••••••" type="password"/></div>
+    <div class="field"><label class="field-label">Password Baru</label><input class="field-input" id="pass-baru" placeholder="Min. 8 karakter" type="password" oninput="checkPassStrength(this.value)"/></div>
+    <div id="pass-strength-bar" style="height:4px;background:var(--border2);border-radius:4px;margin-top:-8px;margin-bottom:12px;overflow:hidden;"><div id="pass-strength-fill" style="height:100%;width:0%;border-radius:4px;transition:.3s;background:var(--red);"></div></div>
+    <div class="text-xs text-muted mb12" id="pass-strength-text">Masukkan password baru</div>
+    <div class="field"><label class="field-label">Konfirmasi Password Baru</label><input class="field-input" placeholder="Ulangi password" type="password"/></div>
+    <button class="btn btn-primary" onclick="showToast('Password berhasil diperbarui 🔒')">Ubah Password</button>
+    <div class="divider mt16 mb12"></div>
+    <div class="fw700 text-sm mb8">Sesi Aktif</div>
+    <div class="card card-p">
+      <div class="info-row"><span class="ir-label">📱 Perangkat Ini</span><span class="ir-value"><span class="badge green">Aktif</span></span></div>
+      <div class="info-row"><span class="ir-label">💻 Chrome · PC Kampus</span><span class="ir-value"><button onclick="showToast('Sesi diakhiri')" style="background:none;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;">Akhiri</button></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFIL: BANTUAN -->
+<div id="s-mhs-profil-bantuan" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-mhs-profil')">←</button>
+    <h2>Bantuan & FAQ</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="field"><input class="field-input" placeholder="🔍 Cari pertanyaan…"/></div>
+    <div class="section-title" style="padding:0;">Pertanyaan Umum</div>
+    <div class="card mb10">
+      <div class="profile-menu-item" onclick="toggleFaq(this)">
+        <div class="fw600 text-sm">Cara daftarkan kendaraan baru?</div>
+        <span style="color:var(--subtle);font-size:16px;">+</span>
+      </div>
+      <div style="display:none;padding:0 16px 14px;font-size:12px;color:var(--muted);line-height:1.6;" class="faq-answer">Buka menu Kendaraan Saya, lalu tap tombol "＋ Daftarkan Kendaraan Baru". Isi data kendaraan dan unggah foto STNK.</div>
+      <div class="profile-menu-item" onclick="toggleFaq(this)">
+        <div class="fw600 text-sm">QR saya tidak bisa di-scan petugas?</div>
+        <span style="color:var(--subtle);font-size:16px;">+</span>
+      </div>
+      <div style="display:none;padding:0 16px 14px;font-size:12px;color:var(--muted);line-height:1.6;" class="faq-answer">QR berubah tiap 30 detik. Pastikan koneksi internet aktif dan tap ikon refresh untuk memperbarui QR.</div>
+      <div class="profile-menu-item" onclick="toggleFaq(this)">
+        <div class="fw600 text-sm">Cara pinjamkan kendaraan ke teman?</div>
+        <span style="color:var(--subtle);font-size:16px;">+</span>
+      </div>
+      <div style="display:none;padding:0 16px 14px;font-size:12px;color:var(--muted);line-height:1.6;" class="faq-answer">Buka menu Pinjamkan, cari teman lewat NIM/nama, tentukan tanggal, lalu kirim permintaan. Teman akan menerima notifikasi untuk dikonfirmasi.</div>
+      <div class="profile-menu-item" style="border:none;" onclick="toggleFaq(this)">
+        <div class="fw600 text-sm">Bagaimana cara lapor kendaraan hilang?</div>
+        <span style="color:var(--subtle);font-size:16px;">+</span>
+      </div>
+      <div style="display:none;padding:0 16px 14px;font-size:12px;color:var(--muted);line-height:1.6;" class="faq-answer">Buka Status Parkir, lalu tap "Laporkan Masalah". Laporan langsung diterima petugas keamanan kampus.</div>
+    </div>
+    <button class="btn btn-outline mt4" onclick="showToast('Membuka live chat 💬')">💬 Chat dengan Petugas</button>
+    <button class="btn btn-ghost mt8" onclick="showToast('Email ke support@smartparkingcampus.unnes.ac.id')">📧 Kirim Email</button>
+  </div>
+</div>
+
+<!-- ██████ PETUGAS DASHBOARD ██████ -->
+<div id="s-ptgs-dash" class="screen">
+  <div class="hero hero-dark" style="padding:52px 20px 22px;">
+    <div class="hero-content">
+      <div class="row-between">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">PETUGAS PARKIR</div>
+          <div style="font-size:19px;font-weight:800;color:#fff;">Rudi Hartono</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">Pos Gerbang Utama</div>
+        </div>
+        <span class="badge green" style="background:rgba(22,163,74,.2);border:1px solid rgba(22,163,74,.35);">🟢 Jaga</span>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:14px;">
+        <div class="ptgs-stat-item"><div class="ptgs-stat-num">87</div><div class="ptgs-stat-lbl">Masuk</div></div>
+        <div class="ptgs-stat-item"><div class="ptgs-stat-num">63</div><div class="ptgs-stat-lbl">Keluar</div></div>
+        <div class="ptgs-stat-item"><div class="ptgs-stat-num">24</div><div class="ptgs-stat-lbl">Parkir</div></div>
+        <div class="ptgs-stat-item alert-item" onclick="go('s-ptgs-alert')" style="cursor:pointer;"><div class="ptgs-stat-num" id="ptgs-alert-count">3</div><div class="ptgs-stat-lbl">Alert</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-body" style="padding-top:14px;">
+    <div class="px">
+      <button class="btn btn-primary" onclick="go('s-ptgs-scan')" style="font-size:15px;padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;">
+        <span style="font-size:20px;">📷</span> Scan QR Kendaraan
+      </button>
+      <div class="grid2 mt8">
+        <button class="btn btn-ghost" onclick="go('s-ptgs-log')" style="font-size:12px;">📋 Log Aktivitas</button>
+        <button class="btn btn-ghost" onclick="go('s-ptgs-alert')" style="font-size:12px;color:var(--red);">🚨 Alert (3)</button>
+        <button class="btn btn-ghost" onclick="go('s-ptgs-kapasitas')" style="font-size:12px;">🅿️ Kapasitas</button>
+        <button class="btn btn-ghost" onclick="showToast('Laporan harian diunduh 📊')" style="font-size:12px;">📊 Laporan</button>
+      </div>
+    </div>
+    <div class="section-title">Kapasitas Real-time</div>
+    <div class="px">
+      <div class="card card-p">
+        <div class="row-between mb4"><div class="fw600 text-sm">🏍️ Motor</div><span class="badge amber">87/120 · 73%</span></div>
+        <div class="cap-bar"><div class="cap-fill amber" style="width:73%;"></div></div>
+        <div class="text-xs text-muted">33 slot tersedia</div>
+        <div class="divider"></div>
+        <div class="row-between mb4"><div class="fw600 text-sm">🚗 Mobil</div><span class="badge amber">34/50 · 68%</span></div>
+        <div class="cap-bar"><div class="cap-fill amber" style="width:68%;"></div></div>
+        <div class="text-xs text-muted mt4">16 slot tersedia</div>
+        <div class="divider"></div>
+        <div class="row-between mb4"><div class="fw600 text-sm">⚡ Listrik</div><span class="badge red">18/20 · 90%</span></div>
+        <div class="cap-bar"><div class="cap-fill red" style="width:90%;"></div></div>
+        <div class="text-xs text-muted mt4">2 slot tersedia</div>
+        <div class="divider"></div>
+        <div class="row-between mb4"><div class="fw600 text-sm">🚘 Tamu</div><span class="badge green">6/15 · 40%</span></div>
+        <div class="cap-bar"><div class="cap-fill green" style="width:40%;"></div></div>
+        <div class="text-xs text-muted mt4">9 slot tersedia</div>
+      </div>
+    </div>
+    <div class="section-title">Aktivitas Terakhir</div>
+    <div class="px mb12">
+      <div class="card card-p">
+        <div class="notif-item" onclick="go('s-ptgs-validasi')" style="cursor:pointer;">
+          <div class="notif-icon" style="background:var(--green-l);">✅</div>
+          <div style="flex:1;"><div class="fw600 text-sm">H 1234 ABC masuk</div><div class="text-xs text-muted mt4">Salma Afifah Maharani · 09:54</div></div>
+          <span class="badge green">Masuk</span>
+        </div>
+        <div class="notif-item" onclick="go('s-ptgs-validasi-pinjam')" style="cursor:pointer;">
+          <div class="notif-icon" style="background:var(--purple-l);">🤝</div>
+          <div style="flex:1;"><div class="fw600 text-sm">H 1234 ABC — Peminjam</div><div class="text-xs text-muted mt4">Meliya Kholisatun Nisa · 09:20</div></div>
+          <span class="badge purple">Pinjam</span>
+        </div>
+        <div class="notif-item" style="border:none;cursor:pointer;" onclick="go('s-ptgs-alert-scan')">
+          <div class="notif-icon" style="background:var(--red-l);">🚨</div>
+          <div style="flex:1;"><div class="fw600 text-sm">QR kadaluarsa — scan gagal</div><div class="text-xs text-muted mt4">Gerbang Utama · 09:05</div></div>
+          <span class="badge red">Alert</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="setNav(this);go('s-ptgs-dash')"><div class="nav-pill">🏠</div><div class="nav-label">Beranda</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-scan')"><div class="nav-pill">📷</div><div class="nav-label">Scan</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-log')"><div class="nav-pill">📋</div><div class="nav-label">Log</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-alert')"><div class="nav-pill">🚨</div><div class="nav-label">Alert</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-profil')"><div class="nav-pill">👤</div><div class="nav-label">Profil</div></button>
+  </nav>
+</div>
+
+<!-- SCANNER -->
+<div id="s-ptgs-scan" class="screen" style="background:#0A0A0A;">
+  <div style="background:#0F172A;padding:52px 20px 10px;display:flex;align-items:center;gap:12px;">
+    <button style="width:34px;height:34px;border-radius:var(--r-sm);background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="go('s-ptgs-dash')">←</button>
+    <h2 style="font-size:17px;font-weight:700;color:#fff;flex:1;">Scan QR Kendaraan</h2>
+    <span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:600;">POS UTAMA</span>
+  </div>
+  <div class="scan-area">
+    <div class="scan-vignette"></div>
+    <div class="scan-frame-box">
+      <div class="scan-corner sc-tl"></div>
+      <div class="scan-corner sc-tr"></div>
+      <div class="scan-corner sc-bl"></div>
+      <div class="scan-corner sc-br"></div>
+      <div class="scan-laser"></div>
+    </div>
+    <div style="position:absolute;bottom:22px;text-align:center;z-index:3;">
+      <span style="font-size:12px;color:rgba(255,255,255,.6);font-weight:600;"><span class="dot pulse" style="background:#38BDF8;"></span> Arahkan ke QR kendaraan</span>
+    </div>
+  </div>
+  <div class="scan-controls">
+    <div style="text-align:center;margin-bottom:10px;">
+      <span style="font-size:10px;color:#38BDF8;font-weight:600;animation:pulse 2s infinite;">● Menunggu scan…</span>
+    </div>
+    <div class="scan-ctrl-grid">
+      <button class="scan-ctrl-btn" onclick="showToast('Flash aktif 💡')"><span class="scb-icon">💡</span>Flash</button>
+      <button class="scan-ctrl-btn valid-btn" onclick="go('s-ptgs-validasi')"><span class="scb-icon">✅</span>Valid</button>
+      <button class="scan-ctrl-btn invalid-btn" onclick="go('s-ptgs-alert-scan')"><span class="scb-icon">⚠️</span>Invalid</button>
+      <button class="scan-ctrl-btn" onclick="go('s-ptgs-validasi-pinjam')"><span class="scb-icon">🤝</span>Pinjam</button>
+    </div>
+    <div style="height:10px;"></div>
+  </div>
+</div>
+
+<!-- VALIDASI BERHASIL -->
+<div id="s-ptgs-validasi" class="screen">
+  <div class="val-header success">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <button style="width:34px;height:34px;border-radius:var(--r-sm);background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="go('s-ptgs-scan')">←</button>
+      <h2 style="font-size:17px;font-weight:700;color:#fff;flex:1;">✅ QR Valid</h2>
+      <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;font-size:10px;">09:54</span>
+    </div>
+    <div class="user-row">
+      <div class="val-avatar">👤</div>
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#fff;">Salma Afifah Maharani</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);">NIM 2405090099 · Pend. Teknik Informatika</div>
+        <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;margin-top:6px;font-size:10px;">🏍️ Pemilik Asli</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-body px" style="padding-top:14px;">
+    <div class="card card-p">
+      <div class="text-xs fw700" style="color:var(--subtle);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Data Kendaraan</div>
+      <div class="info-row"><span class="ir-label">Plat</span><span class="ir-value" style="font-family:var(--mono);font-size:15px;font-weight:800;">H 1234 ABC</span></div>
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value">Honda Beat 2022</span></div>
+      <div class="info-row"><span class="ir-label">Warna</span><span class="ir-value">🔴 Merah</span></div>
+      <div class="info-row"><span class="ir-label">Status</span><span class="ir-value"><span class="badge green">✓ Pemilik Asli</span></span></div>
+    </div>
+    <div class="info-card green mt10" style="text-align:center;font-weight:700;">Kendaraan dapat diizinkan masuk/keluar</div>
+    <button class="btn btn-green mt10" onclick="go('s-ptgs-masuk-ok')">✅ Izinkan Masuk</button>
+    <button class="btn btn-outline mt8" onclick="go('s-ptgs-keluar-ok')">🚪 Izinkan Keluar</button>
+    <button class="btn btn-ghost mt8" onclick="go('s-ptgs-scan')">✕ Tolak & Batalkan</button>
+  </div>
+</div>
+
+<!-- VALIDASI PEMINJAM -->
+<div id="s-ptgs-validasi-pinjam" class="screen">
+  <div class="val-header purple">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <button style="width:34px;height:34px;border-radius:var(--r-sm);background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="go('s-ptgs-scan')">←</button>
+      <h2 style="font-size:17px;font-weight:700;color:#fff;flex:1;">🤝 Peminjam Resmi</h2>
+      <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;font-size:10px;">09:20</span>
+    </div>
+    <div class="user-row">
+      <div class="val-avatar">M</div>
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#fff;">Meliya Kholisatun Nisa</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);">NIM 2405090089 · Pend. Teknik Informatika</div>
+        <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;margin-top:6px;font-size:10px;">🤝 Peminjam Resmi</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-body px" style="padding-top:14px;">
+    <div class="card card-p">
+      <div class="text-xs fw700" style="color:var(--subtle);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Data Kendaraan & Peminjaman</div>
+      <div class="info-row"><span class="ir-label">Plat</span><span class="ir-value" style="font-family:var(--mono);font-size:15px;font-weight:800;">H 1234 ABC</span></div>
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value">Honda Beat 2022</span></div>
+      <div class="info-row"><span class="ir-label">Pemilik Asli</span><span class="ir-value text-blue fw700">Salma Afifah Maharani</span></div>
+      <div class="info-row"><span class="ir-label">Izin Pinjam</span><span class="ir-value"><span class="badge green">✓ Aktif</span></span></div>
+      <div class="info-row"><span class="ir-label">Berlaku</span><span class="ir-value">17 – 17 Jun 2026</span></div>
+    </div>
+    <div class="info-card purple mt10">ℹ️ Notif otomatis dikirim ke <strong>Salma Afifah Maharani</strong> (pemilik) dan tercatat di sistem.</div>
+    <button class="btn btn-green mt10" onclick="go('s-ptgs-masuk-ok')">✅ Izinkan — Peminjam Sah</button>
+    <button class="btn btn-ghost mt8" onclick="showToast('Verifikasi manual diminta')">🔍 Verifikasi Manual</button>
+    <button class="btn btn-ghost mt8" style="color:var(--red);" onclick="go('s-ptgs-scan')">✕ Tolak Akses</button>
+  </div>
+</div>
+
+<!-- SCAN INVALID -->
+<div id="s-ptgs-alert-scan" class="screen">
+  <div class="val-header danger">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <button style="width:34px;height:34px;border-radius:var(--r-sm);background:rgba(255,255,255,.2);border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="go('s-ptgs-scan')">←</button>
+      <h2 style="font-size:17px;font-weight:700;color:#fff;flex:1;">🚨 QR Tidak Valid</h2>
+    </div>
+    <div style="text-align:center;padding:8px 0;">
+      <div style="font-size:48px;">🚫</div>
+      <div style="font-size:17px;font-weight:800;color:#fff;margin-top:6px;">Akses Ditolak</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;">QR tidak valid atau kadaluarsa</div>
+    </div>
+  </div>
+  <div class="scroll-body px" style="padding-top:14px;">
+    <div class="card card-p">
+      <div class="info-row"><span class="ir-label">Waktu</span><span class="ir-value">09:05</span></div>
+      <div class="info-row"><span class="ir-label">Lokasi</span><span class="ir-value">Gerbang Utama</span></div>
+      <div class="info-row"><span class="ir-label">Alasan</span><span class="ir-value text-red">QR kadaluarsa (&gt;30 detik)</span></div>
+      <div class="info-row"><span class="ir-label">Petugas</span><span class="ir-value">Rudi Hartono</span></div>
+    </div>
+    <div class="section-title" style="padding:0;">Input Manual Plat Nomor</div>
+    <div class="card card-p mb10">
+      <div class="field" style="margin-bottom:10px;">
+        <label class="field-label">Plat Nomor Kendaraan</label>
+        <input class="field-input" id="manual-plat" placeholder="H 1234 ABC" style="text-transform:uppercase;font-family:var(--mono);font-size:16px;letter-spacing:.05em;" oninput="this.value=this.value.toUpperCase()"/>
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label class="field-label">Jenis Kendaraan</label>
+        <select class="field-input" id="manual-jenis"><option>🏍️ Motor</option><option>🚗 Mobil</option><option>⚡ Listrik</option><option>🚘 Tamu</option></select>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label class="field-label">Catatan / Keterangan</label>
+        <input class="field-input" id="manual-catatan" placeholder="Alasan masuk manual…"/>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="submitManualEntry()">⌨️ Izinkan Masuk Manual</button>
+    <div class="alert-card mt10">
+      <div class="alert-title">⚠️ Langkah yang Disarankan</div>
+      <div class="alert-desc">Minta pengguna refresh QR di aplikasi mahasiswa, lalu scan ulang. Jika masih gagal, gunakan input manual di atas atau lakukan verifikasi fisik.</div>
+    </div>
+    <button class="btn btn-ghost mt8" onclick="go('s-ptgs-scan')">🔄 Scan Ulang</button>
+    <button class="btn btn-ghost mt8" id="btn-laporkan" style="color:var(--red);" onclick="laporkanKejadian()">🚨 Laporkan Kejadian</button>
+    <div id="laporan-form" style="display:none;" class="card card-p mt10">
+      <div class="fw700 text-sm mb10">📋 Form Laporan Kejadian</div>
+      <div class="field" style="margin-bottom:10px;"><label class="field-label">Deskripsi Kejadian</label><textarea class="field-input" id="laporan-desc" rows="3" placeholder="Jelaskan kejadian yang terjadi…" style="resize:none;"></textarea></div>
+      <div class="field" style="margin-bottom:10px;"><label class="field-label">Tingkat Prioritas</label><select class="field-input" id="laporan-prioritas"><option>🔴 Tinggi — Ancaman Keamanan</option><option>🟡 Sedang — Perlu Tindak Lanjut</option><option>🟢 Rendah — Informasi</option></select></div>
+      <button class="btn btn-red" onclick="submitLaporan()">📤 Kirim Laporan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MASUK OK -->
+<div id="s-ptgs-masuk-ok" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-dash')">←</button>
+    <h2>Berhasil</h2>
+  </div>
+  <div class="success-wrap">
+    <div class="success-circle" style="background:var(--green-l);">✅</div>
+    <div class="fw800 text-xl" style="color:var(--green);">Masuk Diizinkan!</div>
+    <div class="text-sm text-muted">Kendaraan berhasil memasuki area kampus</div>
+    <div class="card card-p" style="width:100%;margin-top:12px;">
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value" style="font-family:var(--mono);">H 1234 ABC</span></div>
+      <div class="info-row"><span class="ir-label">Waktu Masuk</span><span class="ir-value">09:54 WIB</span></div>
+      <div class="info-row"><span class="ir-label">Zona Tujuan</span><span class="ir-value">Zona B — Teknik</span></div>
+      <div class="info-row"><span class="ir-label">Dicatat oleh</span><span class="ir-value">Rudi Hartono</span></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="go('s-ptgs-scan')">📷 Scan Kendaraan Berikutnya</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="go('s-ptgs-dash')">Kembali ke Dashboard</button>
+  </div>
+</div>
+
+<!-- KELUAR OK -->
+<div id="s-ptgs-keluar-ok" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-dash')">←</button>
+    <h2>Berhasil</h2>
+  </div>
+  <div class="success-wrap">
+    <div class="success-circle" style="background:var(--blue-l);">🚪</div>
+    <div class="fw800 text-xl" style="color:var(--blue);">Keluar Diizinkan!</div>
+    <div class="text-sm text-muted">Kendaraan berhasil keluar area kampus</div>
+    <div class="card card-p" style="width:100%;margin-top:12px;">
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value" style="font-family:var(--mono);">H 1234 ABC</span></div>
+      <div class="info-row"><span class="ir-label">Masuk</span><span class="ir-value">08:30 WIB</span></div>
+      <div class="info-row"><span class="ir-label">Keluar</span><span class="ir-value">09:54 WIB</span></div>
+      <div class="info-row"><span class="ir-label">Durasi</span><span class="ir-value fw700 text-blue">1 jam 24 menit</span></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="go('s-ptgs-scan')">📷 Scan Kendaraan Berikutnya</button>
+    <button class="btn btn-ghost" style="width:100%;" onclick="go('s-ptgs-dash')">Kembali ke Dashboard</button>
+  </div>
+</div>
+
+<!-- LOG AKTIVITAS -->
+<div id="s-ptgs-log" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-dash')">←</button>
+    <h2>Log Aktivitas</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="tab-row mb12">
+      <button class="tab-btn active" onclick="setTab(this);filterLog('semua')">Semua</button>
+      <button class="tab-btn" onclick="setTab(this);filterLog('masuk')">Masuk</button>
+      <button class="tab-btn" onclick="setTab(this);filterLog('keluar')">Keluar</button>
+      <button class="tab-btn" onclick="setTab(this);filterLog('alert')">Alert</button>
+    </div>
+    <div class="card card-p" id="log-list">
+      <div class="notif-item" data-type="masuk" onclick="go('s-ptgs-validasi')" style="cursor:pointer;">
+        <div class="notif-icon" style="background:var(--green-l);">✅</div>
+        <div style="flex:1;"><div class="fw600 text-sm">H 1234 ABC masuk</div><div class="text-xs text-muted mt4">Salma Afifah Maharani · 09:54</div></div>
+        <span class="badge green">Masuk</span>
+      </div>
+      <div class="notif-item" data-type="masuk" onclick="go('s-ptgs-validasi-pinjam')" style="cursor:pointer;">
+        <div class="notif-icon" style="background:var(--purple-l);">🤝</div>
+        <div style="flex:1;"><div class="fw600 text-sm">H 1234 ABC — Peminjam masuk</div><div class="text-xs text-muted mt4">Meliya Kholisatun Nisa · 09:20</div></div>
+        <span class="badge purple">Pinjam</span>
+      </div>
+      <div class="notif-item" data-type="keluar">
+        <div class="notif-icon" style="background:var(--blue-l);">🚪</div>
+        <div style="flex:1;"><div class="fw600 text-sm">G 5678 XYZ keluar</div><div class="text-xs text-muted mt4">Flora Valenta · 09:10</div></div>
+        <span class="badge blue">Keluar</span>
+      </div>
+      <div class="notif-item" data-type="alert" onclick="go('s-ptgs-alert-scan')" style="cursor:pointer;">
+        <div class="notif-icon" style="background:var(--red-l);">🚨</div>
+        <div style="flex:1;"><div class="fw600 text-sm">QR kadaluarsa — scan gagal</div><div class="text-xs text-muted mt4">Gerbang Utama · 09:05</div></div>
+        <span class="badge red">Alert</span>
+      </div>
+      <div class="notif-item" data-type="keluar">
+        <div class="notif-icon" style="background:var(--blue-l);">🚪</div>
+        <div style="flex:1;"><div class="fw600 text-sm">B 9012 KLM keluar</div><div class="text-xs text-muted mt4">Binawan Praba · 08:55</div></div>
+        <span class="badge blue">Keluar</span>
+      </div>
+      <div class="notif-item" data-type="masuk" style="border:none;">
+        <div class="notif-icon" style="background:var(--green-l);">✅</div>
+        <div style="flex:1;"><div class="fw600 text-sm">N 3344 PQR masuk</div><div class="text-xs text-muted mt4">Nafisah Desvita · 08:40</div></div>
+        <span class="badge green">Masuk</span>
+      </div>
+    </div>
+    <div id="log-empty" style="display:none;text-align:center;padding:30px;color:var(--muted);">
+      <div style="font-size:32px;margin-bottom:8px;">📭</div>
+      <div class="fw600">Tidak ada data di filter ini</div>
+    </div>
+  </div>
+</div>
+
+<!-- ALERT -->
+<div id="s-ptgs-alert" class="screen">
+  <div style="background:#7F1D1D;padding:52px 20px 14px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button style="width:34px;height:34px;border-radius:var(--r-sm);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="go('s-ptgs-dash')">←</button>
+      <h2 style="font-size:17px;font-weight:700;color:#fff;flex:1;">🚨 Pusat Keamanan</h2>
+      <span class="badge red" id="alert-badge-count">3 Aktif</span>
+    </div>
+  </div>
+  <div class="scroll-body px" style="padding-top:14px;" id="alert-list-container">
+    <div class="alert-card" id="alert-1" onclick="go('s-ptgs-alert-scan')" style="cursor:pointer;">
+      <div class="alert-title">🚨 QR Kadaluarsa — Akses Ditolak</div>
+      <div class="alert-desc">Scan gagal di Gerbang Utama pukul 09:05. Kendaraan tidak dikenal.</div>
+      <div style="margin-top:8px;display:flex;gap:6px;">
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();go('s-ptgs-alert-scan')">🔍 Periksa</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();selesaikanAlert('alert-1')">✅ Selesai</button>
+      </div>
+    </div>
+    <div class="alert-card" id="alert-2">
+      <div class="alert-title">⚠️ Scan Ganda Terdeteksi</div>
+      <div class="alert-desc">K 8877 MNO scan masuk 2× dalam 3 menit di Gerbang B.</div>
+      <div style="margin-top:8px;display:flex;gap:6px;">
+        <button class="btn btn-primary btn-sm" onclick="showToast('Detail dibuka')">🔍 Periksa</button>
+        <button class="btn btn-ghost btn-sm" onclick="selesaikanAlert('alert-2')">✅ Selesai</button>
+      </div>
+    </div>
+    <div class="alert-card" id="alert-3">
+      <div class="alert-title">🔍 Kendaraan Tidak Terdaftar</div>
+      <div class="alert-desc">Motor tanpa plat mencoba masuk Zona C pukul 08:30.</div>
+      <div style="margin-top:8px;display:flex;gap:6px;">
+        <button class="btn btn-primary btn-sm" onclick="showToast('Detail dibuka')">🔍 Periksa</button>
+        <button class="btn btn-ghost btn-sm" onclick="laporkanAlert('alert-3')">🚨 Laporkan</button>
+      </div>
+    </div>
+    <div id="alert-done-section" style="display:none;">
+      <div class="section-title" style="padding:0;">✅ Diselesaikan</div>
+      <div id="alert-done-list"></div>
+    </div>
+    <div id="alert-all-done" style="display:none;text-align:center;padding:30px;color:var(--muted);">
+      <div style="font-size:36px;margin-bottom:8px;">✅</div>
+      <div class="fw700 text-sm text-green">Semua alert telah diselesaikan!</div>
+    </div>
+  </div>
+</div>
+
+<!-- KAPASITAS -->
+<div id="s-ptgs-kapasitas" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-dash')">←</button>
+    <h2>Kapasitas Parkir</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="stat-grid" style="padding:0;margin-bottom:16px;">
+      <div class="stat-item"><div class="stat-val" style="color:var(--ink);">205</div><div class="stat-label">Total Slot</div></div>
+      <div class="stat-item"><div class="stat-val" style="color:var(--green);">60</div><div class="stat-label">Tersedia</div></div>
+    </div>
+    <div class="card card-p mb12">
+      <div class="row-between mb4"><div class="fw700">🏍️ Motor</div><span class="badge amber">73% · 33 sisa</span></div>
+      <div class="cap-bar"><div class="cap-fill amber" style="width:73%;"></div></div>
+      <div class="divider"></div>
+      <div class="row-between mb4"><div class="fw700">🚗 Mobil</div><span class="badge amber">68% · 16 sisa</span></div>
+      <div class="cap-bar"><div class="cap-fill amber" style="width:68%;"></div></div>
+      <div class="divider"></div>
+      <div class="row-between mb4"><div class="fw700">⚡ Listrik</div><span class="badge red">90% · 2 sisa</span></div>
+      <div class="cap-bar"><div class="cap-fill red" style="width:90%;"></div></div>
+      <div class="divider"></div>
+      <div class="row-between mb4"><div class="fw700">🚘 Tamu</div><span class="badge green">40% · 9 sisa</span></div>
+      <div class="cap-bar"><div class="cap-fill green" style="width:40%;"></div></div>
+    </div>
+    <div class="section-title" style="padding:0;">🔥 Heatmap Zona</div>
+    <div class="heatmap-grid mb16">
+      <div class="hm-zone sepi"><div class="hm-name">Zona A</div><div class="hm-sub">Sepi</div></div>
+      <div class="hm-zone padat"><div class="hm-name">Zona B</div><div class="hm-sub">Padat</div></div>
+      <div class="hm-zone sedang"><div class="hm-name">Zona C</div><div class="hm-sub">Sedang</div></div>
+      <div class="hm-zone sepi"><div class="hm-name">Zona D</div><div class="hm-sub">Sepi</div></div>
+      <div class="hm-zone padat"><div class="hm-name">Zona E</div><div class="hm-sub">Padat</div></div>
+      <div class="hm-zone sedang"><div class="hm-name">Zona F</div><div class="hm-sub">Sedang</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFIL PETUGAS -->
+<div id="s-ptgs-profil" class="screen">
+  <div class="hero hero-dark" style="padding:52px 20px 24px;">
+    <div class="hero-content" style="text-align:center;">
+      <div style="width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;border:2.5px solid rgba(255,255,255,.35);margin:0 auto 12px;">RH</div>
+      <div style="font-size:18px;font-weight:800;color:#fff;">Rudi Hartono</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;">Petugas Parkir · Pos Gerbang Utama</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;">NIP 198804232015</div>
+    </div>
+  </div>
+  <div class="scroll-body px" style="padding-top:14px;">
+    <div class="card mb10">
+      <div class="profile-menu-item" onclick="go('s-ptgs-profil-data')">
+        <div class="row-gap"><span style="font-size:18px;">👷</span><div class="fw600 text-sm">Data Petugas</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+      <div class="profile-menu-item" onclick="go('s-ptgs-profil-laporan')">
+        <div class="row-gap"><span style="font-size:18px;">📊</span><div class="fw600 text-sm">Laporan Harian</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+      <div class="profile-menu-item" onclick="go('s-ptgs-profil-notif')">
+        <div class="row-gap"><span style="font-size:18px;">🔔</span><div class="fw600 text-sm">Notifikasi</div></div>
+        <div style="color:var(--subtle);">›</div>
+      </div>
+    </div>
+    <button class="btn btn-red" onclick="doLogout()">🚪 Keluar (Logout)</button>
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:var(--subtle);">SmartParking v1.0 · UNNES</div>
+    <div style="height:20px;"></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-dash')"><div class="nav-pill">🏠</div><div class="nav-label">Beranda</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-scan')"><div class="nav-pill">📷</div><div class="nav-label">Scan</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-log')"><div class="nav-pill">📋</div><div class="nav-label">Log</div></button>
+    <button class="nav-item" onclick="setNav(this);go('s-ptgs-alert')"><div class="nav-pill">🚨</div><div class="nav-label">Alert</div></button>
+    <button class="nav-item active" onclick="setNav(this);go('s-ptgs-profil')"><div class="nav-pill">👤</div><div class="nav-label">Profil</div></button>
+  </nav>
+</div>
+
+<!-- PROFIL PETUGAS: DATA -->
+<div id="s-ptgs-profil-data" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-profil')">←</button>
+    <h2>Data Petugas</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="card card-p mb12">
+      <div class="info-row"><span class="ir-label">Nama Lengkap</span><span class="ir-value">Rudi Hartono</span></div>
+      <div class="info-row"><span class="ir-label">NIP</span><span class="ir-value" style="font-family:var(--mono);">198804232015</span></div>
+      <div class="info-row"><span class="ir-label">Jabatan</span><span class="ir-value">Petugas Parkir</span></div>
+      <div class="info-row"><span class="ir-label">Pos Tugas</span><span class="ir-value">Gerbang Utama</span></div>
+      <div class="info-row"><span class="ir-label">Shift</span><span class="ir-value">Pagi (06:00–14:00)</span></div>
+      <div class="info-row"><span class="ir-label">No. HP</span><span class="ir-value">+62 821-1234-5678</span></div>
+    </div>
+    <div class="field"><label class="field-label">No. HP (ubah)</label><input class="field-input" placeholder="+62 821-1234-5678" type="tel"/></div>
+    <button class="btn btn-primary" onclick="showToast('Data diperbarui ✅')">Simpan Perubahan</button>
+  </div>
+</div>
+
+<!-- PROFIL PETUGAS: LAPORAN HARIAN -->
+<div id="s-ptgs-profil-laporan" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-profil')">←</button>
+    <h2>Laporan Harian</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="field"><label class="field-label">Pilih Tanggal</label><input class="field-input" type="date" id="laporan-tanggal"/></div>
+    <div class="stat-grid" style="padding:0;margin-bottom:16px;">
+      <div class="stat-item"><div class="stat-val" style="color:var(--green);">87</div><div class="stat-label">Kendaraan Masuk</div></div>
+      <div class="stat-item"><div class="stat-val" style="color:var(--blue);">63</div><div class="stat-label">Kendaraan Keluar</div></div>
+      <div class="stat-item"><div class="stat-val" style="color:var(--amber);">3</div><div class="stat-label">Alert Keamanan</div></div>
+      <div class="stat-item"><div class="stat-val" style="color:var(--purple);">4</div><div class="stat-label">Peminjam Masuk</div></div>
+    </div>
+    <button class="btn btn-outline" onclick="showToast('Laporan diunduh sebagai PDF 📄')">📄 Unduh Laporan PDF</button>
+    <button class="btn btn-ghost mt8" onclick="showToast('Laporan dikirim ke supervisor 📧')">📧 Kirim ke Supervisor</button>
+  </div>
+</div>
+
+<!-- PROFIL PETUGAS: NOTIFIKASI -->
+<div id="s-ptgs-profil-notif" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-ptgs-profil')">←</button>
+    <h2>Pengaturan Notifikasi</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="card mb10">
+      <div class="profile-menu-item">
+        <div><div class="fw600 text-sm">Alert Keamanan</div><div class="text-xs text-muted mt4">QR invalid, scan ganda, dll.</div></div>
+        <span class="badge green">Selalu Aktif</span>
+      </div>
+      <div class="profile-menu-item">
+        <div><div class="fw600 text-sm">Kapasitas Penuh</div><div class="text-xs text-muted mt4">Notif saat zona mencapai >90%</div></div>
+        <label onclick="toggleSwitch(this)" style="position:relative;width:44px;height:24px;display:inline-block;cursor:pointer;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;"/>
+          <span style="position:absolute;inset:0;background:var(--green);border-radius:12px;transition:.2s;"><span style="position:absolute;left:2px;top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;transform:translateX(20px);display:block;"></span></span>
+        </label>
+      </div>
+      <div class="profile-menu-item" style="border:none;">
+        <div><div class="fw600 text-sm">Pergantian Shift</div><div class="text-xs text-muted mt4">Pengingat 15 menit sebelum shift berakhir</div></div>
+        <label onclick="toggleSwitch(this)" style="position:relative;width:44px;height:24px;display:inline-block;cursor:pointer;">
+          <input type="checkbox" style="opacity:0;width:0;height:0;"/>
+          <span style="position:absolute;inset:0;background:var(--border);border-radius:12px;transition:.2s;"><span style="position:absolute;left:2px;top:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;display:block;"></span></span>
+        </label>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="showToast('Pengaturan tersimpan ✅')">Simpan</button>
+  </div>
+</div>
+
+<!-- ██████ TAMU REG ██████ -->
+<div id="s-tamu-reg" class="screen">
+  <div class="hero hero-teal" style="padding:52px 20px 24px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <button style="width:34px;height:34px;border-radius:var(--r-sm);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="go('s-splash')">←</button>
+      <div>
+        <div style="font-size:18px;font-weight:800;color:#fff;">Registrasi Tamu</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);">Dapatkan QR akses sementara</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="tamu-chips">
+      <span class="tamu-chip active" onclick="selectTamuType(this,'Gojek / GoSend','🛵')">🛵 Gojek</span>
+      <span class="tamu-chip" onclick="selectTamuType(this,'Grab / GrabExpress','🚗')">🚗 Grab</span>
+      <span class="tamu-chip" onclick="selectTamuType(this,'Kurir (JNE/Shopee/dll)','📦')">📦 Kurir</span>
+      <span class="tamu-chip" onclick="selectTamuType(this,'Tamu Umum','👤')">👤 Umum</span>
+    </div>
+  </div>
+  <div class="scroll-body" style="background:var(--surface);border-radius:28px 28px 0 0;margin-top:-16px;padding:24px 20px 100px;">
+    <div class="field">
+      <label class="field-label">Jenis Pengunjung</label>
+      <select class="field-input" id="tamu-jenis">
+        <option>🛵 Gojek / GoSend</option>
+        <option>🚗 Grab / GrabExpress</option>
+        <option>📦 Kurir (JNE, Shopee, dll)</option>
+        <option>👨‍👩‍👧 Orang Tua Mahasiswa</option>
+        <option>🏢 Vendor / Mitra Kampus</option>
+        <option>👤 Tamu Umum</option>
+      </select>
+    </div>
+    <div class="field"><label class="field-label">Nama Lengkap</label><input class="field-input" id="tamu-nama" placeholder="Nama sesuai KTP / aplikasi"/></div>
+    <div class="field"><label class="field-label">Nomor Telepon</label><input class="field-input" id="tamu-telp" placeholder="08xxxxxxxxxx" type="tel"/></div>
+    <div class="field"><label class="field-label">Plat Nomor</label><input class="field-input" id="tamu-plat" placeholder="H 1234 XX" style="text-transform:uppercase;font-family:var(--mono);" oninput="this.value=this.value.toUpperCase()"/></div>
+    <div class="grid2">
+      <div class="field"><label class="field-label">Kendaraan</label><select class="field-input" id="tamu-kendaraan"><option>Motor</option><option>Mobil</option><option>Truk</option></select></div>
+      <div class="field"><label class="field-label">Tujuan Singkat</label><input class="field-input" id="tamu-tujuan-singkat" placeholder="Antar paket…"/></div>
+    </div>
+    <div class="field"><label class="field-label">Gedung / Lokasi Tujuan</label><input class="field-input" id="tamu-lokasi" placeholder="Gedung A, Rektorat, Lab…"/></div>
+    <div class="field">
+      <label class="field-label">Foto Kendaraan (Opsional)</label>
+      <div id="tamu-foto-box" class="upload-box" onclick="simulateUploadFoto('tamu-foto-box','tamu-foto-preview')" style="margin-bottom:0;">
+        <div style="font-size:22px;margin-bottom:4px;">📷</div>
+        <div class="fw700 text-sm">Tap untuk Foto Kendaraan</div>
+        <div class="text-xs text-muted mt4">JPG, PNG — mempercepat validasi</div>
+      </div>
+      <div id="tamu-foto-preview" style="display:none;border-radius:var(--r-lg);overflow:hidden;margin-top:8px;position:relative;">
+        <div style="height:80px;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);display:flex;align-items:center;justify-content:center;font-size:32px;">🚗</div>
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;">
+          <span style="color:#fff;font-size:13px;font-weight:700;">📷 Foto tersimpan ✓</span>
+        </div>
+      </div>
+    </div>
+    <div class="info-card green mt8 mb14">ℹ️ QR tamu berlaku <strong>1 hari</strong>. Hanya untuk kunjungan ini.</div>
+    <button class="btn" style="background:var(--teal);color:#fff;box-shadow:0 4px 16px rgba(13,148,136,.3);" onclick="submitTamu()">🎫 Generate QR Sementara</button>
+  </div>
+</div>
+
+<!-- QR TAMU -->
+<div id="s-tamu-qr" class="screen">
+  <div class="status-bar dark"></div>
+  <div class="topbar on-white">
+    <button class="back-btn dark" onclick="go('s-tamu-reg')">←</button>
+    <h2>QR Tamu Sementara</h2>
+  </div>
+  <div class="scroll-body px" style="padding-top:8px;">
+    <div class="guest-pass">
+      <div class="gp-orb gp-orb1"></div>
+      <div class="gp-orb gp-orb2"></div>
+      <div class="gp-inner" style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;margin-bottom:5px;">SMART PARKING CAMPUS</div>
+          <div style="font-size:15px;font-weight:800;color:#fff;" id="tamu-qr-type">TAMU — Gojek</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px;" id="tamu-qr-plat">H 1234 XX · Motor</div>
+          <div style="margin-top:10px;">
+            <div style="font-size:9px;color:rgba(255,255,255,.45);">ID KUNJUNGAN</div>
+            <div style="font-size:11px;font-weight:700;color:#fff;font-family:var(--mono);" id="tamu-qr-id">GUEST-240617-0042</div>
+          </div>
+          <div style="margin-top:7px;">
+            <div style="font-size:9px;color:rgba(255,255,255,.45);">BERLAKU</div>
+            <div style="font-size:11px;font-weight:700;color:#fff;">17 Juni 2026</div>
+          </div>
+        </div>
+        <div>
+          <div class="gp-qr-box">
+            <svg width="70" height="70" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
+              <rect width="9" height="9" fill="white"/>
+              <rect x="0" y="0" width="4" height="4" fill="#0D9488" rx=".5"/><rect x="1" y="1" width="2" height="2" fill="white" rx=".2"/>
+              <rect x="5" y="0" width="4" height="4" fill="#0D9488" rx=".5"/><rect x="6" y="1" width="2" height="2" fill="white" rx=".2"/>
+              <rect x="0" y="5" width="4" height="4" fill="#0D9488" rx=".5"/><rect x="1" y="6" width="2" height="2" fill="white" rx=".2"/>
+              <rect x="4" y="4" width="1" height="1" fill="#0D9488"/><rect x="5" y="5" width="1" height="1" fill="#0D9488"/>
+              <rect x="7" y="5" width="2" height="1" fill="#0D9488"/><rect x="6" y="6" width="1" height="2" fill="#0D9488"/>
+              <rect x="8" y="7" width="1" height="2" fill="#0D9488"/><rect x="5" y="8" width="2" height="1" fill="#0D9488"/>
+            </svg>
+          </div>
+          <div style="text-align:center;margin-top:6px;font-size:9px;color:rgba(255,255,255,.45);">Tunjukkan ke<br>petugas</div>
+        </div>
+      </div>
+      <div style="background:rgba(0,0,0,.2);border-radius:var(--r-md);padding:9px 13px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;">
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,.45);font-weight:600;">MASA AKTIF</div>
+          <div style="font-size:10px;font-weight:700;color:#fff;margin-top:1px;"><span class="dot green pulse"></span> Aktif</div>
+        </div>
+        <div style="font-size:19px;font-weight:800;color:#fff;font-family:var(--mono);" id="guest-timer">07:59:54</div>
+      </div>
+    </div>
+    <div class="card card-p mt10">
+      <div class="text-xs fw700" style="color:var(--subtle);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Detail Kunjungan</div>
+      <div class="info-row"><span class="ir-label">Nama</span><span class="ir-value" id="tamu-qr-nama">Hendra W.</span></div>
+      <div class="info-row"><span class="ir-label">Tujuan</span><span class="ir-value" id="tamu-qr-tujuan">Gedung Rektorat</span></div>
+      <div class="info-row"><span class="ir-label">Kendaraan</span><span class="ir-value" style="font-family:var(--mono);" id="tamu-qr-kendaraan">H 1234 XX</span></div>
+      <div class="info-row"><span class="ir-label">Telp</span><span class="ir-value" id="tamu-qr-telp">—</span></div>
+      <div class="info-row"><span class="ir-label">Status</span><span class="ir-value"><span class="badge green">● Aktif</span></span></div>
+    </div>
+    <div class="info-card amber mt10">⚠️ QR hanya berlaku untuk <strong>1 kunjungan</strong>. Tunjukkan saat masuk dan keluar kampus.</div>
+    <button class="btn btn-outline mt10" onclick="showToast('Disimpan ke galeri 📸')">📸 Simpan QR</button>
+    <button class="btn btn-ghost mt8" onclick="showToast('Dibagikan via WhatsApp 📤')">📤 Bagikan via WhatsApp</button>
+    <button class="btn btn-ghost mt8" onclick="go('s-splash')">← Kembali ke Beranda</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+</div><!-- shell -->
+</div><!-- device -->
+
+<script src="script.js" defer></script>
+</body>
+</html>
